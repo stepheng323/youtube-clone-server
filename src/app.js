@@ -8,23 +8,24 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import apiRouter from './routes';
 import { respondWithWarning } from './helper/responseHandler';
+import { DATABASE_URL } from './config/constants';
 
 dotenv.config();
 
-mongoose.connect(process.env.DATABASE_URL, {
+mongoose.connect(DATABASE_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
   useCreateIndex: true,
 }).then(() => console.log('Database connection established'));
 
-const whitelist = ['http://localhost:3000'];
+const whitelist = ['http://localhost:3000', 'http://localhost:4000'];
 const corsOptions = {
   origin(origin, callback) {
     if (whitelist.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(' Not allowed by CORS'));
     }
   },
   credentials: true,

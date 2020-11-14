@@ -1,6 +1,7 @@
 import { verifyToken } from '../helper/jwt';
 import { respondWithWarning } from '../helper/responseHandler';
 
+// eslint-disable-next-line import/prefer-default-export
 export const checkAuth = (req, res, next) => {
   let token = req.headers.authorization;
   if (token && token.startsWith('Bearer ')) {
@@ -18,7 +19,3 @@ export const checkAuth = (req, res, next) => {
     return respondWithWarning(res, 401, error.message);
   }
 };
-
-export const newt = () => {
-
-}

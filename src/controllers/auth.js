@@ -20,12 +20,18 @@ export const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) return respondWithWarning(res, 404, 'Email or password mismatch');
-  const { firstName, lastName, password: hashedPassword } = user;
+  const {
+    firstName, lastName, password: hashedPassword, _id: id,
+  } = user;
   const passwordMatch = await comparePassword(password, hashedPassword);
   if (!passwordMatch) return respondWithWarning(res, 404, 'Email or password mismatch');
 
-  const tokenAndTokenExpiry = await signToken({ firstName, lastName, email });
-  const refreshToken = await signRefreshToken({ firstName, lastName, email });
+  const tokenAndTokenExpiry = await signToken({
+    firstName, lastName, email, id,
+  });
+  const refreshToken = await signRefreshToken({
+    firstName, lastName, email, id,
+  });
   user.refreshToken = refreshToken;
   await user.save();
   res.cookie('refToken', refreshToken, {
@@ -54,11 +60,16 @@ export const getToken = catchAsync(async (req, res, next) => {
   try {
     const user = await User.findOne({ refreshToken: refToken });
     if (!user) return respondWithWarning(res, 404, 'refresh token not found');
-    const { data } = verifyRefreshToken(user.refreshToken);
+    const data = verifyRefreshToken(user.refreshToken);
     if (data) {
-      const token = await signToken(data);
+      const {
+        firstName, lastName, email, id,
+      } = data;
+      const tokenAndTokenExpiry = await signToken({
+        firstName, lastName, email, id,
+      });
       return respondWithSuccess(res, 200, 'token generated successfuly', {
-        ...token,
+        ...tokenAndTokenExpiry,
         ...data,
       });
     }
