@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
-const userSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const userSchema = Schema({
   email: {
     type: String,
     required: true,
@@ -13,14 +15,19 @@ const userSchema = new mongoose.Schema({
   lastName: {
     type: String, required: true,
   },
-  photo: {
+  avatar: {
     type: String,
   },
   password: {
     type: String, required: true,
   },
+  channel: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
+
   refreshToken: {
     type: String,
+  },
+  date: {
+    type: Date, default: Date.now
   },
 });
 

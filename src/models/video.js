@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-const videoSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+const videoSchema = Schema({
   title: {
     type: String,
     required: true,
@@ -9,8 +10,8 @@ const videoSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  channel: {
-    type: String,
+  owner: {
+    type: Schema.Types.ObjectId, ref: 'User',
   },
   channelImage: {
     type: String,
@@ -18,7 +19,9 @@ const videoSchema = new mongoose.Schema({
   views: {
     type: String,
   },
-  date: String,
+  date: {
+    type: Date, default: Date.now
+  },
 });
 
 const Video = mongoose.model('Video', videoSchema);
