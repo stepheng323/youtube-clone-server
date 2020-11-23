@@ -19,8 +19,8 @@ export const createChannelWithUserAccount = catchAsync(async (req, res, next) =>
 export const createChannel = catchAsync(async (req, res, next) => {console.log('me');});
 
 export const getChannel = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+  const { id } = req.auth;
   const channel = await Channel.find({ owner: id });
   if (!channel.length) return respondWithWarning(res, 404, 'No channel found for this user');
-  return respondWithSuccess(res, 200, 'Channel info fetch');
+  return respondWithSuccess(res, 200, 'Channel info fetch', channel);
 });

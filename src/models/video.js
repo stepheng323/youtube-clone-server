@@ -6,21 +6,32 @@ const videoSchema = Schema({
     type: String,
     required: true,
   },
+  description: {
+    type: String,
+    required: true,
+  },
   thumbnail: {
     type: String,
     required: true,
   },
-  owner: {
-    type: Schema.Types.ObjectId, ref: 'User',
+  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
+  viewsCount: {
+    type: Number,
+    default: 0,
   },
-  channelImage: {
-    type: String,
+  likes: {
+    type: Number,
+    default: 0,
   },
-  views: {
-    type: String,
+  dislikes: {
+    type: Number,
+    default: 0,
   },
+  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+
   date: {
-    type: Date, default: Date.now
+    type: Date,
+    default: Date.now,
   },
 });
 

@@ -9,5 +9,5 @@ const channel = Router();
 
 channel.post('/with-user-account', checkAuth, createChannelWithUserAccount);
 channel.post('/', checkAuth, createChannel);
-channel.get('/:id', getChannel);
+channel.get('/user', checkAuth, getChannel);
 export default channel;
