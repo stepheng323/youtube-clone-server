@@ -4,15 +4,16 @@ const { Schema } = mongoose;
 const videoSchema = Schema({
   title: {
     type: String,
-    required: true,
   },
   description: {
+    type: String,
+  },
+  videoUrl: {
     type: String,
     required: true,
   },
   thumbnail: {
     type: String,
-    required: true,
   },
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   viewsCount: {
@@ -27,13 +28,15 @@ const videoSchema = Schema({
     type: Number,
     default: 0,
   },
-  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
-
-  date: {
-    type: Date,
-    default: Date.now,
+  duration: {
+    type: String,
   },
-});
+  status: {
+    type: String,
+    default: 'draft',
+  },
+  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+}, { timestamps: true });
 
 const Video = mongoose.model('Video', videoSchema);
 

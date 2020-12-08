@@ -33,6 +33,8 @@ const corsOptions = {
 
 const app = express();
 
+app.use('/uploads', express.static('./uploads'));
+
 app.use(helmet());
 app.use(cookieParser());
 app.use(cors(corsOptions));

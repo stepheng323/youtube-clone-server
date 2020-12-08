@@ -21,15 +21,12 @@ const userSchema = Schema({
   password: {
     type: String, required: true,
   },
-  channel: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
+  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
 
   refreshToken: {
     type: String,
   },
-  date: {
-    type: Date, default: Date.now
-  },
-});
+}, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 

@@ -2,7 +2,6 @@
 import { catchAsync } from '../utils/catchAsync';
 import { bcryptHash, comparePassword } from '../helper/bcrypt';
 import User from '../models/user';
-import Channel from '../models/channel';
 
 import {
   respondWithSuccess,
@@ -15,7 +14,7 @@ export const signUp = catchAsync(async (req, res, next) => {
   const userExist = await User.findOne({ email: submittedEmail });
   if (userExist) return respondWithWarning(res, 409, 'Email already signed up, try login');
   const hashedPassword = await bcryptHash(password);
-  const user = await User.create({ ...req.body, password: hashedPassword });
+  const user = await User.create({ ...req.body, password: hashedPassword, channel: null });
   const {
     firstName, lastName, _id: id, email,
   } = user;
@@ -29,21 +28,21 @@ export const signUp = catchAsync(async (req, res, next) => {
 
   user.refreshToken = refreshToken;
   await user.save();
-  const channelCount = await Channel.find({ owner: id }).count();
 
   user.password = undefined;
   res.cookie('refToken', refreshToken, {
     maxAge: 604800000,
     httpOnly: true,
   });
+  const { _doc: userData } = user;
   return respondWithSuccess(res, 201, 'User Created Successfully', {
-    user, ...tokenAndTokenExpiry, refreshToken, channelCount,
+    ...userData, ...tokenAndTokenExpiry, refreshToken,
   });
 });
 
 export const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email }).populate('Channel');
+  const user = await User.findOne({ email }).populate('channel');
   if (!user) return respondWithWarning(res, 404, 'Email or password mismatch');
   const {
     firstName, lastName, password: hashedPassword, _id: id, channel, avatar,
@@ -59,7 +58,6 @@ export const login = catchAsync(async (req, res, next) => {
   });
   user.refreshToken = refreshToken;
   await user.save();
-  const channelCount = await Channel.find({ owner: id }).count();
 
   res.cookie('refToken', refreshToken, {
     maxAge: 604800000,
@@ -73,7 +71,6 @@ export const login = catchAsync(async (req, res, next) => {
     avatar,
     ...tokenAndTokenExpiry,
     refreshToken,
-    channelCount,
   });
 });
 
@@ -88,7 +85,7 @@ export const logout = catchAsync(async (req, res, next) => {
 export const getToken = catchAsync(async (req, res, next) => {
   const { refToken } = req.cookies;
   try {
-    const user = await User.findOne({ refreshToken: refToken });
+    const user = await User.findOne({ refreshToken: refToken }).populate('channel');
     if (!user) return respondWithWarning(res, 404, 'refresh token not found');
     const { channel, avatar } = user;
     const data = verifyRefreshToken(user.refreshToken);
@@ -99,13 +96,11 @@ export const getToken = catchAsync(async (req, res, next) => {
       const tokenAndTokenExpiry = await signToken({
         firstName, lastName, email, id,
       });
-      const channelCount = await Channel.find({ owner: id }).count();
       return respondWithSuccess(res, 200, 'token generated successfuly', {
         ...tokenAndTokenExpiry,
         ...data,
         channel,
         avatar,
-        channelCount,
 
       });
     }

@@ -22,11 +22,7 @@ const channelSchema = Schema({
   channelDescription: {
     type: String,
   },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-});
+}, { timestamps: true });
 
 const Channel = mongoose.model('Channel', channelSchema);
 

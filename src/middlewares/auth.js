@@ -8,7 +8,8 @@ export const checkAuth = (req, res, next) => {
     token = token.slice(7, token.length);
   }
   if (!token) {
-    return respondWithWarning(res, 401, 'no token provided');
+    req.auth = '';
+    return next();
   }
   try {
     const data = verifyToken(token);
