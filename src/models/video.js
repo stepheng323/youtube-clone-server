@@ -16,18 +16,15 @@ const videoSchema = Schema({
     type: String,
   },
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
+
   viewsCount: {
     type: Number,
     default: 0,
   },
-  likes: {
-    type: Number,
-    default: 0,
-  },
-  dislikes: {
-    type: Number,
-    default: 0,
-  },
+  likes: [{ type: Schema.Types.ObjectId, ref: 'Like' }],
+
+  dislikes: [{ type: Schema.Types.ObjectId, ref: 'Dislike' }],
+
   duration: {
     type: String,
   },
