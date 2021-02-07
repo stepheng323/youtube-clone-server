@@ -21,9 +21,6 @@ const videoSchema = Schema({
     type: Number,
     default: 0,
   },
-  likes: [{ type: Schema.Types.ObjectId, ref: 'Like' }],
-
-  dislikes: [{ type: Schema.Types.ObjectId, ref: 'Dislike' }],
 
   duration: {
     type: String,
