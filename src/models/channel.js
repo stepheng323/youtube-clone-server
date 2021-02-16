@@ -12,6 +12,10 @@ const channelSchema = Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
   },
+  subscriberCount: {
+    type: Number,
+    default: 0,
+  },
   channelAvatar: {
     type: String,
   },

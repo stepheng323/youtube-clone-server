@@ -27,7 +27,6 @@ var _constants = require("./config/constants");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/* eslint-disable no-console */
 _dotenv.default.config();
 
 _mongoose.default.connect(_constants.DATABASE_URL, {

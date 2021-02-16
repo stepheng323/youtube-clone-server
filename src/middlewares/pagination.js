@@ -29,8 +29,11 @@ const paginate = (model, queryOption, selector, populate, sort, filter) => async
   if (filter === 'user') {
     query = model.find({ user: req.auth.id || req.params.userId });
   }
-  if (filter === 'likedBy') {
-    query = model.find({ likedBy: req.auth.id });
+  if (filter === 'liked') {
+    query = model.find({ playlist: 'like', likedBy: req.auth.id });
+  }
+  if (filter === 'watch-later') {
+    query = model.find({ playlist: 'watch-later', likedBy: req.auth.id });
   }
   if (selector.length) {
     query = query.select(selector);

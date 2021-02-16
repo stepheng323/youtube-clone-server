@@ -148,7 +148,7 @@ export const search = catchAsync(async (req, res, next) => {
 export const likeVideo = catchAsync(async (req, res, next) => {
   const { videoId } = req.params;
   const { id } = req.auth;
-  await Like.create({ video: videoId, likedBy: id });
+  await Like.create({ video: videoId, likedBy: id, playlist: 'like' });
   await Dislike.findOneAndDelete({ video: videoId, dislikedBy: id, playlist: 'disliked' });
   return respondWithSuccess(res, 200, 'video liked successfully');
 });
@@ -191,7 +191,7 @@ export const getFeelingStatus = catchAsync(async (req, res, next) => {
   const { videoId } = req.params;
   const { id } = req.auth;
   const like = await Like.findOne({ video: videoId, likedBy: id });
-  const dislike = await Dislike.findOne({video: videoId, dislikedBy: id });
+  const dislike = await Dislike.findOne({ video: videoId, dislikedBy: id });
   const response = {
     hasFeeling: !!(like || dislike),
     like: !!like,
@@ -210,7 +210,7 @@ export const getChannelVideos = catchAsync(async (req, res, next) => {
   return respondWithWarning(res, 200, 'videos fetched successfully', videos);
 });
 
-export const getChannelPlaylist = catchAsync(async(req, res, next) => {
+export const getChannelPlaylist = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const playlist = await Like.find({
     $and: [
@@ -220,15 +220,14 @@ export const getChannelPlaylist = catchAsync(async(req, res, next) => {
     ]
   });
   if (!playlist.length) return respondWithWarning(res, 404, 'no video found');
-  console.log(playlist);
   return respondWithSuccess(res, 200, 'videos fetched successfully', playlist);
 });
 
-export const getVideoCount = catchAsync(async(req, res, next) => {
+export const getVideoCount = catchAsync(async (req, res, next) => {
   const { id } = req.auth;
   const channel = await Channel.findOne({ owner: id });
   if (!channel) return respondWithWarning(res, 404, 'no channel found');
   const { _id: channelId } = channel;
-  const videosCount = await Video.countDocuments({channel: channelId });
-  return respondWithSuccess(res, 200, 'video count fetched successfully', videosCount); 
+  const videosCount = await Video.countDocuments({ channel: channelId });
+  return respondWithSuccess(res, 200, 'video count fetched successfully', videosCount);
 });

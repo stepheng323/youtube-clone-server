@@ -25,7 +25,9 @@ video.patch('/:id', _auth.checkAuth, _multer.uploadimage.single('thumbnail'), _v
 video.get('/watch/:id', _video2.getVideo);
 video.get('/details/:id', _video2.getVideoDetails);
 video.get('/metric-count/:id', _video2.getMetrics);
-video.get('/upnext/:query', _video2.getUpnextVideo);
+video.get('/upnext', (0, _pagination.default)(_video.default, {}, [], [{
+  path: 'channel'
+}]), _video2.getUpnextVideo);
 video.patch('/view/:videoId', _auth.checkAuth, _video2.updateViewCount);
 video.get('/recommended', (0, _pagination.default)(_video.default, {
   status: 'public'
@@ -36,6 +38,9 @@ video.get('/recommended', (0, _pagination.default)(_video.default, {
 video.get('/search/:searchQuery', _video2.search);
 video.post('/like/:videoId', _auth.checkAuth, _video2.likeVideo);
 video.post('/dislike/:videoId', _auth.checkAuth, _video2.dislikeVideo);
+video.get('/like/:videoId', _video2.getVideoLikeCount);
+video.get('/dislike/:videoId', _video2.getVideoDislikeCount);
+video.get('/status/feeling/:videoId', _auth.checkAuth, _video2.getFeelingStatus);
 video.get('/trending', (0, _pagination.default)(_video.default, {}, ['-comments -status'], [{
   path: 'channel',
   select: ['name']
@@ -43,5 +48,8 @@ video.get('/trending', (0, _pagination.default)(_video.default, {}, ['-comments 
   createdAt: -1,
   viewsCount: 'desc'
 }), _video2.getTrendingVideos);
+video.get('/channel/:channelName', _video2.getChannelVideos);
+video.get('/channel/playlist', _auth.checkAuth, _video2.getChannelPlaylist);
+video.get('/count/', _auth.checkAuth, _video2.getVideoCount);
 var _default = video;
 exports.default = _default;

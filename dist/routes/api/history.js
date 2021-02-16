@@ -20,11 +20,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 const history = (0, _express.Router)();
 history.get('/', _auth.checkAuth, (0, _pagination.default)(_history2.default, {}, [], [{
   path: 'video',
-  select: ['title', 'description', 'thumbnail', 'duration', 'viewsCount'],
+  select: ['title', 'description', 'thumbnail', 'duration', 'viewsCount', 'createdAt'],
   populate: {
     path: 'channel',
     select: ['name']
   }
-}]), _history.getUserHistory);
+}], {
+  updatedAt: 'desc'
+}, 'user'), _history.getUserHistory);
 var _default = history;
 exports.default = _default;

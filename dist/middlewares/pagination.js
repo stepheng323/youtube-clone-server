@@ -7,6 +7,7 @@ exports.default = void 0;
 
 var _responseHandler = require("../helper/responseHandler");
 
+// eslint-disable-next-line max-len
 const paginate = (model, queryOption, selector, populate, sort, filter) => async (req, res, next) => {
   const page = parseInt(req.query.page, 10);
   const limit = parseInt(req.query.limit, 10);
@@ -40,6 +41,20 @@ const paginate = (model, queryOption, selector, populate, sort, filter) => async
   if (filter === 'user') {
     query = model.find({
       user: req.auth.id || req.params.userId
+    });
+  }
+
+  if (filter === 'liked') {
+    query = model.find({
+      playlist: 'like',
+      likedBy: req.auth.id
+    });
+  }
+
+  if (filter === 'watch-later') {
+    query = model.find({
+      playlist: 'watch-later',
+      likedBy: req.auth.id
     });
   }
 

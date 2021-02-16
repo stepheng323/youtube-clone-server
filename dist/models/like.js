@@ -20,6 +20,9 @@ const likeSchema = Schema({
   likedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'
+  },
+  playlist: {
+    type: String
   }
 }, {
   timestamps: true

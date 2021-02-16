@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getTrendingVideos = exports.getMetrics = exports.dislikeVideo = exports.likeVideo = exports.search = exports.updateViewCount = exports.getUpnextVideo = exports.getVideoDetails = exports.getVideo = exports.getRecommendedVideos = exports.uploadVideoDetails = exports.uploadVideo = void 0;
+exports.getVideoCount = exports.getChannelPlaylist = exports.getChannelVideos = exports.getFeelingStatus = exports.getVideoDislikeCount = exports.getVideoLikeCount = exports.getTrendingVideos = exports.getMetrics = exports.dislikeVideo = exports.likeVideo = exports.search = exports.updateViewCount = exports.getUpnextVideo = exports.getVideoDetails = exports.getVideo = exports.getRecommendedVideos = exports.uploadVideoDetails = exports.uploadVideo = void 0;
 
 var _fs = _interopRequireDefault(require("fs"));
 
@@ -25,6 +25,7 @@ var _dislike = _interopRequireDefault(require("../models/dislike"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/* eslint-disable no-underscore-dangle */
 const uploadVideo = (0, _catchAsync.catchAsync)(async (req, res, next) => {
   if (!req.auth) return (0, _responseHandler.respondWithWarning)(res, 401, 'Please sign in to continue');
   if (!req.file) return (0, _responseHandler.respondWithWarning)(res, 404, 'No file Uploaded');
@@ -132,26 +133,10 @@ const getVideoDetails = (0, _catchAsync.catchAsync)(async (req, res, next) => {
 exports.getVideoDetails = getVideoDetails;
 const getUpnextVideo = (0, _catchAsync.catchAsync)(async (req, res, next) => {
   const {
-    query
-  } = req.params;
-  const relatedVideos = await _video.default.find({
-    $or: [{
-      title: {
-        $regex: query,
-        $options: 'i'
-      }
-    }, {
-      description: {
-        $regex: query,
-        $options: 'i'
-      }
-    }]
-  }).populate('channel');
-  const videos = await _video.default.find().populate('channel');
-  const combinedResult = [...relatedVideos, ...videos];
-  const upNextVideos = [...new Set(combinedResult.filter(i => i.title !== query))];
-  if (!upNextVideos.length) return (0, _responseHandler.respondWithWarning)(res, 404, 'no videos found');
-  return (0, _responseHandler.respondWithSuccess)(res, 200, 'videos fetched successfully', upNextVideos);
+    paginatedResults
+  } = res;
+  if (!paginatedResults.data.length) return (0, _responseHandler.respondWithWarning)(res, 404, 'No videos found', []);
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'videos fetched successfully', paginatedResults);
 });
 exports.getUpnextVideo = getUpnextVideo;
 const updateViewCount = (0, _catchAsync.catchAsync)(async (req, res, next) => {
@@ -163,29 +148,41 @@ const updateViewCount = (0, _catchAsync.catchAsync)(async (req, res, next) => {
     const {
       id
     } = req.auth;
-    const videoHistory = await _history.default.find({
+    const video = await _history.default.findOne({
       user: id,
-      video: videoId
-    });
+      video: videoId,
+      createdAt: {
+        $gte: new Date(new Date().setHours(0, 0, 0)),
+        $lt: new Date(new Date().setHours(23, 59, 59))
+      }
+    }); // update history
 
-    if (videoHistory.length < 5) {
-      await _video.default.findByIdAndUpdate({
-        _id: videoId
+    if (video) {
+      await _history.default.findByIdAndUpdate({
+        _id: video._id
       }, {
-        $inc: {
-          viewsCount: 1
-        }
+        updatedAt: new Date()
       }, {
         new: true
       });
     }
 
-    await _history.default.create({
+    if (!video) await _history.default.create({
       video: videoId,
       user: id
     });
-    return (0, _responseHandler.respondWithSuccess)(res, 200, 'updated successfully');
+    await _video.default.findByIdAndUpdate({
+      _id: videoId
+    }, {
+      $inc: {
+        viewsCount: 1
+      }
+    }, {
+      new: true
+    });
   }
+
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'updated successfully');
 });
 exports.updateViewCount = updateViewCount;
 const search = (0, _catchAsync.catchAsync)(async (req, res, next) => {
@@ -232,12 +229,13 @@ const likeVideo = (0, _catchAsync.catchAsync)(async (req, res, next) => {
   } = req.auth;
   await _like.default.create({
     video: videoId,
-    likedBy: id
+    likedBy: id,
+    playlist: 'like'
   });
-  await _video.default.findByIdAndUpdate({
-    _id: videoId
-  }, {
-    viewsCount: 1
+  await _dislike.default.findOneAndDelete({
+    video: videoId,
+    dislikedBy: id,
+    playlist: 'disliked'
   });
   return (0, _responseHandler.respondWithSuccess)(res, 200, 'video liked successfully');
 });
@@ -251,7 +249,12 @@ const dislikeVideo = (0, _catchAsync.catchAsync)(async (req, res, next) => {
   } = req.auth;
   await _dislike.default.create({
     video: videoId,
-    dislikedBy: id
+    dislikedBy: id,
+    playlist: 'liked'
+  });
+  await _like.default.findOneAndDelete({
+    video: videoId,
+    likedBy: id
   });
   return (0, _responseHandler.respondWithSuccess)(res, 200, 'video disliked successfully');
 });
@@ -281,3 +284,100 @@ const getTrendingVideos = (0, _catchAsync.catchAsync)(async (req, res, next) => 
   return (0, _responseHandler.respondWithSuccess)(res, 200, 'trending videos fteched successfully', paginatedResults);
 });
 exports.getTrendingVideos = getTrendingVideos;
+const getVideoLikeCount = (0, _catchAsync.catchAsync)(async (req, res, next) => {
+  const {
+    videoId
+  } = req.params;
+  const likeCount = await _like.default.countDocuments({
+    video: videoId
+  });
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'like count fetched successfully', likeCount);
+});
+exports.getVideoLikeCount = getVideoLikeCount;
+const getVideoDislikeCount = (0, _catchAsync.catchAsync)(async (req, res, next) => {
+  const {
+    videoId
+  } = req.params;
+  const dislikeCount = await _dislike.default.countDocuments({
+    video: videoId
+  });
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'dislike count fetched successfully', dislikeCount);
+});
+exports.getVideoDislikeCount = getVideoDislikeCount;
+const getFeelingStatus = (0, _catchAsync.catchAsync)(async (req, res, next) => {
+  const {
+    videoId
+  } = req.params;
+  const {
+    id
+  } = req.auth;
+  const like = await _like.default.findOne({
+    video: videoId,
+    likedBy: id
+  });
+  const dislike = await _dislike.default.findOne({
+    video: videoId,
+    dislikedBy: id
+  });
+  const response = {
+    hasFeeling: !!(like || dislike),
+    like: !!like,
+    dislike: !!dislike
+  };
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'feeling fetched successfully', response);
+});
+exports.getFeelingStatus = getFeelingStatus;
+const getChannelVideos = (0, _catchAsync.catchAsync)(async (req, res, next) => {
+  const {
+    channelName
+  } = req.params;
+  const channel = await _channel.default.findOne({
+    name: channelName
+  });
+  if (!channel) return (0, _responseHandler.respondWithWarning)(res, 404, `no channel found with ${channelName}`); // eslint-disable-next-line no-underscore-dangle
+
+  const videos = await _video.default.find({
+    channel: channel._id
+  });
+  if (!videos.length) return (0, _responseHandler.respondWithWarning)(res, 404, 'No videos found for this channel');
+  return (0, _responseHandler.respondWithWarning)(res, 200, 'videos fetched successfully', videos);
+});
+exports.getChannelVideos = getChannelVideos;
+const getChannelPlaylist = (0, _catchAsync.catchAsync)(async (req, res, next) => {
+  const {
+    id
+  } = req.params;
+  const playlist = await _like.default.find({
+    $and: [{
+      likedBy: id
+    }, {
+      $or: [{
+        playlist: 'liked'
+      }]
+    }, {
+      $or: [{
+        playlist: 'watched later'
+      }]
+    }]
+  });
+  if (!playlist.length) return (0, _responseHandler.respondWithWarning)(res, 404, 'no video found');
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'videos fetched successfully', playlist);
+});
+exports.getChannelPlaylist = getChannelPlaylist;
+const getVideoCount = (0, _catchAsync.catchAsync)(async (req, res, next) => {
+  const {
+    id
+  } = req.auth;
+  const channel = await _channel.default.findOne({
+    owner: id
+  });
+  if (!channel) return (0, _responseHandler.respondWithWarning)(res, 404, 'no channel found');
+  const {
+    _id: channelId
+  } = channel;
+  const videosCount = await _video.default.countDocuments({
+    channel: channelId
+  });
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'video count fetched successfully', videosCount);
+});
+exports.getVideoCount = getVideoCount;

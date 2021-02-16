@@ -19,6 +19,8 @@ var _history = _interopRequireDefault(require("./api/history"));
 
 var _subscriber = _interopRequireDefault(require("./api/subscriber"));
 
+var _like = _interopRequireDefault(require("./api/like"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const apiRouter = (0, _express.Router)();
@@ -28,5 +30,6 @@ apiRouter.use('/api/v1/channel', _channel.default);
 apiRouter.use('/api/v1/comment', _comment.default);
 apiRouter.use('/api/v1/history', _history.default);
 apiRouter.use('/api/v1/subscriber', _subscriber.default);
+apiRouter.use('/api/v1/like', _like.default);
 var _default = apiRouter;
 exports.default = _default;
