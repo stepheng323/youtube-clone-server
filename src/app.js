@@ -7,18 +7,26 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import apiRouter from './routes';
 import { respondWithWarning } from './helper/responseHandler';
-import { DATABASE_URL } from './config/constants';
+import { DATABASE_URL, ATLAS_URL } from './config/constants';
 
 dotenv.config();
 
-mongoose.connect(DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
-}).then(() => console.log('Database connection established'));
+const DATA_CONNECTION = process.env === 'development' ? DATABASE_URL : ATLAS_URL;
 
-const whitelist = ['http://localhost:3000', 'http://localhost:4000'];
+mongoose
+  .connect(DATA_CONNECTION, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+  })
+  .then(() => console.log('Database connection established'));
+
+const whitelist = [
+  'http://localhost:3000',
+  'http://localhost:4000',
+  'https://602be99844dd3900071edb49--thirsty-kirch-3242e6.netlify.app',
+];
 const corsOptions = {
   origin(origin, callback) {
     if (whitelist.includes(origin)) {
