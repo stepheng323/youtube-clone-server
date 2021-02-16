@@ -20,12 +20,12 @@ mongoose
     useFindAndModify: false,
     useCreateIndex: true,
   })
-  .then(() => console.log('Database connection established'));
+  .then(() => console.log(`Connection established with ${process.env.NODE_ENV} database`));
 
 const whitelist = [
   'http://localhost:3000',
   'http://localhost:4000',
-  'https://602be99844dd3900071edb49--thirsty-kirch-3242e6.netlify.app',
+  'https://602bf79bdd16b900088c7ffd--thirsty-kirch-3242e6.netlify.app',
 ];
 const corsOptions = {
   origin(origin, callback) {
