@@ -25,7 +25,7 @@ mongoose
 const whitelist = [
   'http://localhost:3000',
   'http://localhost:4000',
-  'https://602be99844dd3900071edb49--thirsty-kirch-3242e6.netlify.app',
+  'https://602be99844dd3900071edb49--thirsty-kirch-3242e6.netlify.app/',
 ];
 const corsOptions = {
   origin(origin, callback) {
