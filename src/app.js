@@ -11,7 +11,7 @@ import { DATABASE_URL, ATLAS_URL } from './config/constants';
 
 dotenv.config();
 
-const DATA_CONNECTION = process.env === 'development' ? DATABASE_URL : ATLAS_URL;
+const DATA_CONNECTION = process.env.NODE_ENV !== 'production' ? DATABASE_URL : ATLAS_URL;
 
 mongoose
   .connect(DATA_CONNECTION, {
