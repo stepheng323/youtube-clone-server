@@ -29,27 +29,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _dotenv.default.config();
 
-_mongoose.default.connect(_constants.DATABASE_URL, {
+const DATA_CONNECTION = process.env.NODE_ENV !== 'production' ? _constants.DATABASE_URL : _constants.ATLAS_URL;
+
+_mongoose.default.connect(DATA_CONNECTION, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
   useCreateIndex: true
-}).then(() => console.log('Database connection established'));
+}).then(() => console.log(`Connection established with ${process.env.NODE_ENV} database`));
 
-const whitelist = ['http://localhost:3000', 'http://localhost:4000'];
+const whitelist = ['http://localhost:3000', 'http://localhost:4000', 'https://thirsty-kirch-3242e6.netlify.app', 'https://602bf79bdd16b900088c7ffd--thirsty-kirch-3242e6.netlify.app'];
 const corsOptions = {
   origin(origin, callback) {
-    if (whitelist.includes(origin)) {
+    if (whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error(' Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS'));
     }
-  },
+  }
 
-  credentials: true
 };
 const app = (0, _express.default)();
 app.use('/uploads', _express.default.static('./uploads'));
+app.options('*', (0, _cors.default)(corsOptions));
 app.use((0, _helmet.default)());
 app.use((0, _cookieParser.default)());
 app.use((0, _cors.default)(corsOptions));
