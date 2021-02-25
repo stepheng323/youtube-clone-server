@@ -15,6 +15,6 @@ apiRouter.use('/api/v1/channel', channel);
 apiRouter.use('/api/v1/comment', comment);
 apiRouter.use('/api/v1/history', history);
 apiRouter.use('/api/v1/subscriber', subscriber);
-apiRouter.use('/api/v1/like', like)
+apiRouter.use('/api/v1/like', like);
 
 export default apiRouter;

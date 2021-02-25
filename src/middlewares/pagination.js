@@ -1,7 +1,14 @@
 import { respondWithWarning } from '../helper/responseHandler';
 
 // eslint-disable-next-line max-len
-const paginate = (model, queryOption, selector, populate, sort, filter) => async (req, res, next) => {
+const paginate = (
+  model,
+  queryOption,
+  selector,
+  populate,
+  sort,
+  filter
+) => async (req, res, next) => {
   const page = parseInt(req.query.page, 10);
   const limit = parseInt(req.query.limit, 10);
   const startIndex = (page - 1) * limit;
@@ -45,6 +52,13 @@ const paginate = (model, queryOption, selector, populate, sort, filter) => async
     populate.forEach((item) => {
       query = query.populate(item);
     });
+  }
+
+  if (req.channelIds?.length) {
+    query = model
+      .find({ channel: { $in: req.channelIds } })
+      .sort({ createdAt: -1 })
+      .populate('channel', 'name');
   }
   try {
     results.data = await query.limit(limit).skip(startIndex);

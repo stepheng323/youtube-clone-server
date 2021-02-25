@@ -5,7 +5,8 @@ import {
   getChannel,
   getChannelInfo,
   setupAccount,
-  getAllChannels
+  getAllChannels,
+  channelPopularVideos
 } from '../../controllers/channel';
 import { checkAuth } from '../../middlewares/auth';
 import { uploadimage } from '../../config/multer';
@@ -20,5 +21,5 @@ channel.patch('/setup', checkAuth, uploadimage.single('channelAvatar'), setupAcc
 channel.get('/', checkAuth, getChannelInfo);
 channel.get('/:channelName', getChannel);
 channel.get('/all/channels', checkAuth, paginate(Channel, {}, [], [], '', ''), getAllChannels);
-
+channel.get('/popular-videos', channelPopularVideos);
 export default channel;

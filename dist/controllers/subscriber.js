@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getUserSubscriptionsCount = exports.channelSubscriptionCount = exports.getUserSubscriptionStatus = exports.channelSubscriptionCountVideo = exports.subscriptionList = exports.getSubscriptionStatus = exports.unSubscribeFromChannel = exports.subscribeToChannel = void 0;
+exports.subcriptionsVideos = exports.getUserSubscriptionsCount = exports.channelSubscriptionCount = exports.getUserSubscriptionStatus = exports.channelSubscriptionCountVideo = exports.subscriptionList = exports.getSubscriptionStatus = exports.unSubscribeFromChannel = exports.subscribeToChannel = void 0;
 
 var _catchAsync = require("../utils/catchAsync");
 
@@ -37,7 +37,7 @@ const subscribeToChannel = (0, _catchAsync.catchAsync)(async (req, res, next) =>
     _id: channelId
   }, {
     $inc: {
-      channelCount: 1
+      subscriberCount: 1
     }
   }, {
     new: true
@@ -62,8 +62,8 @@ const unSubscribeFromChannel = (0, _catchAsync.catchAsync)(async (req, res, next
   const unSubscribedChannel = await _channel.default.findByIdAndUpdate({
     _id: channelId
   }, {
-    $: {
-      channelCount: -1
+    $inc: {
+      subscriberCount: -1
     }
   }, {
     new: true
@@ -139,7 +139,11 @@ const getUserSubscriptionStatus = (0, _catchAsync.catchAsync)(async (req, res, n
     user: id,
     channel: channelId
   });
-  if (!subscription) return (0, _responseHandler.respondWithWarning)(res, 404, 'not subcribed to this channel');
+
+  if (!subscription) {
+    return (0, _responseHandler.respondWithWarning)(res, 404, 'not subcribed to this channel');
+  }
+
   return (0, _responseHandler.respondWithSuccess)(res, 200, 'you are subcribed to this channel', true);
 });
 exports.getUserSubscriptionStatus = getUserSubscriptionStatus;
@@ -170,3 +174,25 @@ const getUserSubscriptionsCount = (0, _catchAsync.catchAsync)(async (req, res, n
   return (0, _responseHandler.respondWithSuccess)(res, 200, 'subscription count fetched successfully', subscriptionCount);
 });
 exports.getUserSubscriptionsCount = getUserSubscriptionsCount;
+const subcriptionsVideos = (0, _catchAsync.catchAsync)(async (req, res, next) => {
+  const {
+    paginatedResults
+  } = res;
+  if (!paginatedResults.data.length) return (0, _responseHandler.respondWithWarning)(res, 404, 'no subscription videos found');
+  const obj = {};
+  paginatedResults.data.forEach(video => {
+    const date = video.createdAt.toDateString();
+
+    if (obj[date]) {
+      obj[date].push(video);
+    } else {
+      obj[date] = [video];
+    }
+  });
+  const groupArrays = Object.keys(obj).map(date => ({
+    date,
+    videos: obj[date]
+  }));
+  return (0, _responseHandler.respondWithSuccess)(res, 200, 'subscriptions videos fetched successfully', groupArrays);
+});
+exports.subcriptionsVideos = subcriptionsVideos;

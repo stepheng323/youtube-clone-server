@@ -6,6 +6,7 @@ import {
 	respondWithSuccess,
 	respondWithWarning,
 } from '../helper/responseHandler';
+import Video from '../models/video';
 
 export const createChannelWithUserAccount = catchAsync(
 	async (req, res, next) => {
@@ -98,3 +99,11 @@ export const getAllChannels = catchAsync(async (req, res, next) => {
 		paginatedResults
 	);
 });
+
+
+export const channelPopularVideos = catchAsync(async (req, res, next) => {
+	const {channelId: channel} = req.params;
+	const videos = await Video.find({channel}).sort({viewsCount: 1});
+	if(!videos.length) return respondWithSuccess(res, 404, 'no videos found');
+	return respondWithSuccess(res, 200, 'popular videos fetched successfully', videos);
+})

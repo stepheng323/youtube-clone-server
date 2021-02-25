@@ -72,6 +72,16 @@ const paginate = (model, queryOption, selector, populate, sort, filter) => async
     });
   }
 
+  if (req.channelIds?.length) {
+    query = model.find({
+      channel: {
+        $in: req.channelIds
+      }
+    }).sort({
+      createdAt: -1
+    }).populate('channel', 'name');
+  }
+
   try {
     results.data = await query.limit(limit).skip(startIndex);
   } catch (e) {

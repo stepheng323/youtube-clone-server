@@ -21,7 +21,7 @@ export const subscribeToChannel = catchAsync(async (req, res, next) => {
   });
   const subscribedChannel = await Channel.findByIdAndUpdate(
     { _id: channelId },
-    { $inc: { channelCount: 1 } },
+    { $inc: { subscriberCount: 1 } },
     { new: true }
   );
   const data = { channel: subscribedChannel };
@@ -34,7 +34,7 @@ export const unSubscribeFromChannel = catchAsync(async (req, res, next) => {
   await Subscriber.findOneAndDelete({ user: id, channel: channelId });
   const unSubscribedChannel = await Channel.findByIdAndUpdate(
     { _id: channelId },
-    { $: { channelCount: -1 } },
+    { $inc: { subscriberCount: -1 } },
     { new: true }
   );
   const data = { channel: unSubscribedChannel };
@@ -45,8 +45,7 @@ export const getSubscriptionStatus = catchAsync(async (req, res, next) => {
   const { id } = req.auth;
   const { videoId } = req.params;
   const videoDetails = await Video.findById(videoId).populate('channel');
-  if (!videoDetails)
-    return respondWithWarning(res, 404, 'no video with the id found');
+  if (!videoDetails) return respondWithWarning(res, 404, 'no video with the id found');
   const {
     channel: { _id: channelId },
   } = videoDetails;
@@ -54,8 +53,7 @@ export const getSubscriptionStatus = catchAsync(async (req, res, next) => {
     user: id,
     channel: channelId,
   });
-  if (!subscription)
-    return respondWithWarning(res, 404, 'not subcribed to this channel');
+  if (!subscription) return respondWithWarning(res, 404, 'not subcribed to this channel');
   return respondWithSuccess(
     res,
     200,
@@ -66,8 +64,7 @@ export const getSubscriptionStatus = catchAsync(async (req, res, next) => {
 
 export const subscriptionList = catchAsync(async (req, res, next) => {
   const { paginatedResults } = res;
-  if (!paginatedResults.data.length)
-    return respondWithWarning(res, 404, 'not subscribed to any channel');
+  if (!paginatedResults.data.length) return respondWithWarning(res, 404, 'not subscribed to any channel');
   return respondWithSuccess(
     res,
     200,
@@ -80,8 +77,7 @@ export const channelSubscriptionCountVideo = catchAsync(
   async (req, res, next) => {
     const { videoId } = req.params;
     const videoDetails = await Video.findById(videoId).populate('channel');
-    if (!videoDetails)
-      return respondWithWarning(res, 404, 'no video with the id found');
+    if (!videoDetails) return respondWithWarning(res, 404, 'no video with the id found');
     const {
       channel: { _id: channelId },
     } = videoDetails;
@@ -107,8 +103,7 @@ export const getUserSubscriptionStatus = catchAsync(async (req, res, next) => {
     user: id,
     channel: channelId,
   });
-  if (!subscription)
-    return respondWithWarning(res, 404, 'not subcribed to this channel');
+  if (!subscription) { return respondWithWarning(res, 404, 'not subcribed to this channel'); }
   return respondWithSuccess(
     res,
     200,
@@ -139,5 +134,32 @@ export const getUserSubscriptionsCount = catchAsync(async (req, res, next) => {
     200,
     'subscription count fetched successfully',
     subscriptionCount
+  );
+});
+
+export const subcriptionsVideos = catchAsync(async (req, res, next) => {
+  const { paginatedResults } = res;
+  if (!paginatedResults.data.length) return respondWithWarning(res, 404, 'no subscription videos found');
+
+  const obj = {};
+  paginatedResults.data.forEach((video) => {
+    const date = video.createdAt.toDateString();
+    if (obj[date]) {
+      obj[date].push(video);
+    } else {
+      obj[date] = [video];
+    }
+  });
+
+  const groupArrays = Object.keys(obj).map((date) => ({
+    date,
+    videos: obj[date],
+  }));
+
+  return respondWithSuccess(
+    res,
+    200,
+    'subscriptions videos fetched successfully',
+    groupArrays
   );
 });
