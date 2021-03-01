@@ -200,15 +200,6 @@ export const getFeelingStatus = catchAsync(async (req, res, next) => {
   return respondWithSuccess(res, 200, 'feeling fetched successfully', response);
 });
 
-export const getChannelVideos = catchAsync(async (req, res, next) => {
-  const { channelName } = req.params;
-  const channel = await Channel.findOne({ name: channelName });
-  if (!channel) return respondWithWarning(res, 404, `no channel found with ${channelName}`);
-  // eslint-disable-next-line no-underscore-dangle
-  const videos = await Video.find({ channel: channel._id });
-  if (!videos.length) return respondWithWarning(res, 404, 'No videos found for this channel');
-  return respondWithWarning(res, 200, 'videos fetched successfully', videos);
-});
 
 export const getChannelPlaylist = catchAsync(async (req, res, next) => {
   const { id } = req.params;

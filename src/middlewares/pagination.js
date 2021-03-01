@@ -42,13 +42,11 @@ const paginate = (
   if (filter === 'watch-later') {
     query = model.find({ playlist: 'watch-later', likedBy: req.auth.id });
   }
-  if (selector.length) {
+  if (selector?.length) {
     query = query.select(selector);
   }
-  if (sort) {
-    query = query.sort(sort);
-  }
-  if (populate.length) {
+ 
+  if (populate?.length) {
     populate.forEach((item) => {
       query = query.populate(item);
     });
@@ -59,6 +57,13 @@ const paginate = (
       .find({ channel: { $in: req.channelIds } })
       .sort({ createdAt: -1 })
       .populate('channel', 'name');
+  }
+  if (req.channelId) {
+    query = model.find({ channel: req.channelId });
+  }
+
+  if (sort) {
+    query = query.sort(sort);
   }
   try {
     results.data = await query.limit(limit).skip(startIndex);

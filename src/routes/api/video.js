@@ -46,7 +46,6 @@ video.get('/status/feeling/:videoId', checkAuth, getFeelingStatus);
 video.get('/trending', paginate(Video, {}, ['-comments -status'],
   [{ path: 'channel', select: ['name'] }], { createdAt: -1, viewsCount: 'desc' }),
 getTrendingVideos);
-video.get('/channel/:channelName', getChannelVideos);
 video.get('/channel/playlist', checkAuth, getChannelPlaylist);
 video.get('/count/', checkAuth, getVideoCount);
 export default video;
