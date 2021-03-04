@@ -8,6 +8,7 @@ import {
   respondWithWarning,
 } from '../helper/responseHandler';
 import { signRefreshToken, signToken, verifyRefreshToken } from '../helper/jwt';
+import { NODE_ENV } from '../config/constants';
 
 export const signUp = catchAsync(async (req, res, next) => {
   const { password, email: submittedEmail } = req.body;
@@ -58,10 +59,12 @@ export const login = catchAsync(async (req, res, next) => {
   });
   user.refreshToken = refreshToken;
   await user.save();
-
+  const domain = NODE_ENV === 'development' ? 'localhost' : 'thirsty-kirch-3242e6.netlify.app';
   res.cookie('refToken', refreshToken, {
     maxAge: 604800000,
     httpOnly: true,
+    secure: NODE_ENV !== 'development',
+    domain
   });
   return respondWithSuccess(res, 200, 'login successful', {
     firstName,

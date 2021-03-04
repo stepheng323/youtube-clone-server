@@ -9,6 +9,7 @@ const {
   PORT,
   AWS_BASE_URL,
   ATLAS_URL,
+  NODE_ENV
 } = process.env;
 
 export {
@@ -18,4 +19,5 @@ export {
   PORT,
   AWS_BASE_URL,
   ATLAS_URL,
+  NODE_ENV
 };
