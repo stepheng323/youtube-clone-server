@@ -59,12 +59,13 @@ export const login = catchAsync(async (req, res, next) => {
   });
   user.refreshToken = refreshToken;
   await user.save();
-  const domain = NODE_ENV === 'development' ? 'localhost' : 'tubetube.ml';
+  const domain = NODE_ENV === 'development' ? 'localhost' : 'my-youtube.ml';
   res.cookie('refToken', refreshToken, {
     maxAge: 604800000,
     httpOnly: true,
     secure: NODE_ENV !== 'development',
-    domain
+    domain,
+    // sameSite: 'none'
   });
   return respondWithSuccess(res, 200, 'login successful', {
     firstName,
