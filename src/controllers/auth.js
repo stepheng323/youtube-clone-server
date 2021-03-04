@@ -59,7 +59,7 @@ export const login = catchAsync(async (req, res, next) => {
   });
   user.refreshToken = refreshToken;
   await user.save();
-  const domain = NODE_ENV === 'development' ? 'localhost' : 'thirsty-kirch-3242e6.netlify.app';
+  const domain = NODE_ENV === 'development' ? 'localhost' : '.netlify.app';
   res.cookie('refToken', refreshToken, {
     maxAge: 604800000,
     httpOnly: true,
