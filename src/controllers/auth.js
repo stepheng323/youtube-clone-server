@@ -59,7 +59,7 @@ export const login = catchAsync(async (req, res, next) => {
   });
   user.refreshToken = refreshToken;
   await user.save();
-  const domain = NODE_ENV === 'development' ? 'localhost' : 'netlify.app';
+  const domain = NODE_ENV === 'development' ? 'localhost' : 'tubetube.ml';
   res.cookie('refToken', refreshToken, {
     maxAge: 604800000,
     httpOnly: true,

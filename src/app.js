@@ -24,10 +24,9 @@ mongoose
 
 const whitelist = [
   'http://localhost:3000',
-  'http://localhost:4000',
   'https://thirsty-kirch-3242e6.netlify.app',
   'https://youtube-clone-ui.vercel.app',
-  'https://602bf79bdd16b900088c7ffd--thirsty-kirch-3242e6.netlify.app',
+  'https://tubetube.ml'
 ];
 const corsOptions = {
   origin(origin, callback) {
