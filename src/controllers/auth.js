@@ -65,7 +65,7 @@ export const login = catchAsync(async (req, res, next) => {
     httpOnly: true,
     secure: NODE_ENV !== 'development',
     domain,
-    // sameSite: 'none'
+    sameSite: 'none'
   });
   return respondWithSuccess(res, 200, 'login successful', {
     firstName,
