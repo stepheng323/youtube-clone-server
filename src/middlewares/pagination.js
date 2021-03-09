@@ -42,6 +42,9 @@ const paginate = (
   if (filter === 'watch-later') {
     query = model.find({ playlist: 'watch-later', likedBy: req.auth.id });
   }
+  if (filter === 'my-channel-videos') {
+    query = model.find({ channel: req.channel._id });
+  }
   if (selector?.length) {
     query = query.select(selector);
   }
